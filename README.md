@@ -1,21 +1,23 @@
 # 📸 Vintage Photo Editor
 
-A mobile-first web application that transforms your photos with authentic vintage filters. Built with modern web technologies for a seamless, Instagram-like editing experience.
+A professional-grade web application that transforms your photos with **authentic film emulation**. Features advanced algorithms that recreate the distinctive characteristics of legendary film stocks like Kodachrome, Portra, and Tri-X.
 
-![Vintage Photo Editor](https://img.shields.io/badge/PWA-Ready-blue) ![Next.js](https://img.shields.io/badge/Next.js-15-black) ![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)
+![Vintage Photo Editor](https://img.shields.io/badge/PWA-Ready-blue) ![Next.js](https://img.shields.io/badge/Next.js-15-black) ![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue) ![Film Emulation](https://img.shields.io/badge/Film_Emulation-Advanced-red)
 
 ## ✨ Features
 
-### 🎨 **Vintage Filters**
-- **4 Authentic Presets**: Vintage Film, Warm Sunset, Faded Cool, Matte Black & White
-- **Ultra-Grainy Texture**: Maximum grain settings for authentic film aesthetic
+### 🎞️ **Professional Film Emulation**
+- **8 Authentic Film Stocks**: Kodachrome 64, Tri-X Push, Portra 400, Velvia 50, Polaroid SX-70, Ektachrome E100, Cross Process, Expired Film
+- **Advanced Color Grading**: Separate shadow/midtone/highlight adjustments
+- **RGB Curves Processing**: Non-linear tone mapping that mimics film response
+- **Channel Mixing**: Cross-channel color bleeding like real film stocks
 - **One-Click Toggle**: Tap to apply, tap again to remove filters
-- **Real-time Preview**: Instant filter application using Canvas API
+- **Real-time Preview**: Instant processing using optimized Canvas API
 
-### 📱 **Mobile-First Design**
-- **Touch-Optimized UI**: 44px+ buttons for perfect mobile interaction
-- **Responsive Layout**: Adapts seamlessly from mobile to desktop
-- **Gesture-Friendly**: Horizontal scrolling preset carousel
+### 📱 **Minimalistic UI Design**
+- **Badge-Style Presets**: Clean, compact filter selection in responsive grid
+- **Icon-Only Actions**: Minimalistic download button overlay within image
+- **No Scrolling Needed**: All 8 film presets visible at once
 - **PWA Support**: Install on home screen like a native app
 
 ### 📷 **Image Handling**
@@ -24,9 +26,9 @@ A mobile-first web application that transforms your photos with authentic vintag
 - **High-Quality Processing**: Canvas-based image manipulation
 - **Efficient Downloads**: JPEG compression for optimal file sizes
 
-### 🔄 **Share & Export**
-- **Web Share API**: Native mobile sharing experience
-- **Direct Download**: Fallback for non-supporting devices
+### 🔄 **Export**
+- **High-Quality Downloads**: JPEG compression with 90% quality
+- **Icon-Only Interface**: Minimalistic download button positioned within image
 - **Cross-Platform**: Works on iOS, Android, and desktop
 
 ## 🛠️ **Tech Stack**
@@ -36,10 +38,11 @@ A mobile-first web application that transforms your photos with authentic vintag
 - **[TypeScript](https://www.typescriptlang.org)** - Type safety and better DX
 - **[Tailwind CSS](https://tailwindcss.com)** - Utility-first styling
 
-### **Image Processing**
+### **Advanced Image Processing**
 - **Canvas API** - Browser-native image manipulation
-- **Custom Filter Algorithm** - Brightness, contrast, saturation, sepia, grain
-- **Real-time Processing** - No external dependencies for fast performance
+- **Professional Film Emulation** - RGB curves, color grading, channel mixing
+- **Mathematical Film Modeling** - Algorithms based on real film response curves
+- **Real-time Processing** - Optimized pixel-level transformations
 
 ### **UI Components**
 - **[Lucide React](https://lucide.dev)** - Beautiful, consistent icons
@@ -100,44 +103,58 @@ src/
 │   └── page.tsx           # Main application component
 ├── components/            # Reusable UI components
 │   ├── ImageUpload.tsx    # File upload & camera capture
-│   ├── ImagePreview.tsx   # Photo display component
-│   ├── PresetCarousel.tsx # Filter selection carousel
-│   └── ActionButtons.tsx  # Download & share buttons
+│   ├── ImagePreview.tsx   # Photo display with download overlay
+│   ├── PresetCarousel.tsx # Film preset selection grid
+│   └── ActionButtons.tsx  # Minimalistic action buttons
 ├── data/
-│   └── presets.json       # Filter configurations
+│   └── presets.json       # Professional film stock configurations
+├── lib/
+│   └── filmEmulation.ts   # Advanced film processing algorithms
 ├── types/
-│   └── index.ts          # TypeScript type definitions
+│   └── index.ts          # TypeScript interfaces with film data
 public/
 ├── manifest.json         # PWA manifest
 └── [icons]              # PWA icons and assets
 ```
 
-## 🎯 **Key Algorithms**
+## 🎯 **Advanced Film Emulation**
 
-### **Filter Processing Pipeline**
-1. **Brightness Adjustment** - RGB channel multiplication
-2. **Saturation Control** - Grayscale blending with original colors
-3. **Sepia Effect** - Classic sepia tone matrix transformation
-4. **Film Grain** - Random noise generation for texture
-5. **Canvas Rendering** - Efficient pixel manipulation
+### **Professional Processing Pipeline**
+1. **RGB Curves** - Non-linear tone mapping with interpolation
+2. **Individual Channel Curves** - Separate red, green, blue adjustments
+3. **Color Grading** - Luminance-based shadow/midtone/highlight control
+4. **Channel Mixing** - Cross-channel color bleeding simulation
+5. **Saturation & Sepia** - Traditional color adjustments
+6. **Film Grain** - Authentic texture generation
 
-### **Grain Implementation**
+### **Curve Processing Implementation**
 ```typescript
-if (preset.filters.grain > 0) {
-  const grainAmount = preset.filters.grain * 80;
-  const grain = (Math.random() - 0.5) * grainAmount;
-  r += grain; g += grain; b += grain;
+function applyCurve(value: number, curve: number[]): number {
+  const normalizedValue = Math.max(0, Math.min(1, value / 255));
+  const index = normalizedValue * (curve.length - 1);
+  const lowerIndex = Math.floor(index);
+  const upperIndex = Math.min(lowerIndex + 1, curve.length - 1);
+  const factor = index - lowerIndex;
+  
+  const lowerValue = curve[lowerIndex];
+  const upperValue = curve[upperIndex];
+  
+  return (lowerValue + (upperValue - lowerValue) * factor) * 255;
 }
 ```
 
-## 🌟 **Filter Presets**
+## 🎞️ **Authentic Film Stocks**
 
-| Filter | Brightness | Contrast | Saturation | Sepia | Grain | Effect |
-|--------|------------|----------|------------|-------|-------|--------|
-| **Vintage Film** | 1.1 | 1.2 | 0.8 | 0.3 | 1.0 | Classic film look |
-| **Warm Sunset** | 1.15 | 1.1 | 1.3 | 0.1 | 0.8 | Golden hour warmth |
-| **Faded Cool** | 1.05 | 0.9 | 0.7 | 0 | 0.9 | Desaturated cool tones |
-| **Matte B&W** | 1.1 | 0.8 | 0 | 0 | 1.0 | Film noir aesthetic |
+| Film Stock | Characteristics | Best For |
+|------------|-----------------|----------|
+| **Kodachrome 64** | Rich reds/magentas, high contrast, fine grain | Portraits, vivid colors |
+| **Tri-X Push** | High contrast B&W, heavy grain | Street photography, documentary |
+| **Portra 400** | Natural skin tones, neutral colors | Portrait photography |
+| **Velvia 50** | Ultra-saturated, landscape-focused | Nature, landscapes |
+| **Polaroid SX-70** | Soft contrast, faded aesthetic | Instant film nostalgia |
+| **Ektachrome E100** | Clean, precise slide film look | Professional photography |
+| **Cross Process** | Unusual color shifts, high contrast | Experimental, artistic |
+| **Expired Film** | Color degradation, unpredictable shifts | Vintage, aged aesthetic |
 
 ## 🚀 **Deployment**
 

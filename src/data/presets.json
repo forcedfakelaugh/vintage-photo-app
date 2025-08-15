@@ -5,13 +5,29 @@
     "thumbnail": "/thumbnails/kodachrome-64.jpg",
     "filters": {
       "brightness": 1.05,
-      "contrast": 1.3,
-      "saturation": 1.4,
-      "sepia": 0.1,
-      "vignette": 0.2,
-      "grain": 0.3,
-      "temperature": 15,
-      "tint": -3
+      "contrast": 1.2,
+      "saturation": 1.3,
+      "sepia": 0,
+      "vignette": 0.15,
+      "grain": 0.2,
+      "temperature": 12,
+      "tint": -2,
+      "curves": {
+        "rgb": [0, 0.05, 0.15, 0.35, 0.65, 0.85, 0.95, 1],
+        "red": [0, 0.1, 0.3, 0.6, 0.8, 1],
+        "green": [0, 0.05, 0.25, 0.55, 0.75, 0.95, 1],
+        "blue": [0, 0.02, 0.2, 0.5, 0.7, 0.9, 1]
+      },
+      "colorGrading": {
+        "shadows": { "r": 0.05, "g": -0.02, "b": -0.1 },
+        "midtones": { "r": 0.08, "g": 0.02, "b": -0.05 },
+        "highlights": { "r": 0.1, "g": 0.05, "b": 0 }
+      },
+      "channelMixer": {
+        "red": { "r": 1.1, "g": 0.05, "b": 0 },
+        "green": { "r": 0.02, "g": 1.0, "b": 0.02 },
+        "blue": { "r": 0, "g": 0.02, "b": 0.95 }
+      }
     }
   },
   {
@@ -34,14 +50,30 @@
     "name": "Portra 400",
     "thumbnail": "/thumbnails/portra-400.jpg",
     "filters": {
-      "brightness": 1.1,
-      "contrast": 1.1,
-      "saturation": 0.9,
-      "sepia": 0.05,
-      "vignette": 0.1,
-      "grain": 0.5,
-      "temperature": 8,
-      "tint": 2
+      "brightness": 1.08,
+      "contrast": 1.05,
+      "saturation": 0.95,
+      "sepia": 0,
+      "vignette": 0.05,
+      "grain": 0.3,
+      "temperature": 6,
+      "tint": 1,
+      "curves": {
+        "rgb": [0, 0.08, 0.25, 0.5, 0.75, 0.92, 1],
+        "red": [0, 0.12, 0.35, 0.65, 0.85, 1],
+        "green": [0, 0.08, 0.28, 0.58, 0.78, 0.95, 1],
+        "blue": [0, 0.05, 0.22, 0.52, 0.72, 0.92, 1]
+      },
+      "colorGrading": {
+        "shadows": { "r": 0.02, "g": 0.01, "b": -0.03 },
+        "midtones": { "r": 0.05, "g": 0.02, "b": -0.02 },
+        "highlights": { "r": 0.03, "g": 0.01, "b": 0 }
+      },
+      "channelMixer": {
+        "red": { "r": 1.05, "g": 0.02, "b": 0 },
+        "green": { "r": 0.01, "g": 1.0, "b": 0.01 },
+        "blue": { "r": 0, "g": 0.01, "b": 0.98 }
+      }
     }
   },
   {

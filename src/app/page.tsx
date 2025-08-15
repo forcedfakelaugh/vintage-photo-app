@@ -5,6 +5,7 @@ import { ImageUpload } from '@/components/ImageUpload';
 import { PresetCarousel } from '@/components/PresetCarousel';
 import { ImagePreview } from '@/components/ImagePreview';
 import { ProcessedImage, Preset } from '@/types';
+import { processPixelAdvanced } from '@/lib/filmEmulation';
 import presets from '@/data/presets.json';
 
 export default function Home() {
@@ -94,50 +95,33 @@ export default function Home() {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
       
-      // Process pixels with optimized loop
+      // Process pixels with advanced film emulation
       const length = data.length;
       for (let i = 0; i < length; i += 4) {
-        let r = data[i];
-        let g = data[i + 1];
-        let b = data[i + 2];
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
         
-        // Apply brightness
-        r *= preset.filters.brightness;
-        g *= preset.filters.brightness;
-        b *= preset.filters.brightness;
-        
-        // Apply saturation
-        if (preset.filters.saturation !== 1) {
-          const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-          r = r * preset.filters.saturation + gray * (1 - preset.filters.saturation);
-          g = g * preset.filters.saturation + gray * (1 - preset.filters.saturation);
-          b = b * preset.filters.saturation + gray * (1 - preset.filters.saturation);
-        }
-        
-        // Apply sepia
-        if (preset.filters.sepia > 0) {
-          const sepiaR = (r * 0.393) + (g * 0.769) + (b * 0.189);
-          const sepiaG = (r * 0.349) + (g * 0.686) + (b * 0.168);
-          const sepiaB = (r * 0.272) + (g * 0.534) + (b * 0.131);
-          
-          r = r * (1 - preset.filters.sepia) + sepiaR * preset.filters.sepia;
-          g = g * (1 - preset.filters.sepia) + sepiaG * preset.filters.sepia;
-          b = b * (1 - preset.filters.sepia) + sepiaB * preset.filters.sepia;
-        }
+        // Apply advanced film processing
+        const [newR, newG, newB] = processPixelAdvanced(r, g, b, preset.filters);
         
         // Apply grain
+        let finalR = newR;
+        let finalG = newG;
+        let finalB = newB;
+        
         if (preset.filters.grain > 0) {
           const grainAmount = preset.filters.grain * 80;
           const grain = (Math.random() - 0.5) * grainAmount;
-          r += grain;
-          g += grain;
-          b += grain;
+          finalR += grain;
+          finalG += grain;
+          finalB += grain;
         }
         
         // Clamp values efficiently
-        data[i] = Math.min(255, Math.max(0, r));
-        data[i + 1] = Math.min(255, Math.max(0, g));
-        data[i + 2] = Math.min(255, Math.max(0, b));
+        data[i] = Math.min(255, Math.max(0, finalR));
+        data[i + 1] = Math.min(255, Math.max(0, finalG));
+        data[i + 2] = Math.min(255, Math.max(0, finalB));
       }
       
       ctx.putImageData(imageData, 0, 0);
