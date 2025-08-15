@@ -46,7 +46,7 @@
   },
   {
     "id": "matte-bw",
-    "name": "Matte Black & White",
+    "name": "Matte B&W",
     "thumbnail": "/thumbnails/matte-bw.jpg",
     "filters": {
       "brightness": 1.1,
