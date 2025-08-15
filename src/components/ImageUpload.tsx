@@ -5,9 +5,10 @@ import { Camera, Upload, Image as ImageIcon } from 'lucide-react';
 
 interface ImageUploadProps {
   onImageUpload: (imageData: string) => void;
+  compact?: boolean;
 }
 
-export function ImageUpload({ onImageUpload }: ImageUploadProps) {
+export function ImageUpload({ onImageUpload, compact = false }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -78,22 +79,53 @@ export function ImageUpload({ onImageUpload }: ImageUploadProps) {
             playsInline
             className="w-full rounded-lg"
           />
-          <div className="flex justify-center gap-4 mt-4">
+          <div className="flex justify-center gap-2 mt-4">
             <button
               onClick={capturePhoto}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full font-medium transition-colors flex items-center gap-2 min-h-[44px]"
+              className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full transition-colors"
+              title="Capture photo"
             >
               <Camera size={20} />
-              Capture
             </button>
             <button
               onClick={stopCamera}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-full font-medium transition-colors min-h-[44px]"
+              className="bg-gray-500 hover:bg-gray-600 text-white p-3 rounded-full transition-colors"
+              title="Cancel"
             >
-              Cancel
+              ✕
             </button>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (compact) {
+    return (
+      <div className="flex gap-2 justify-center">
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 p-2 rounded-lg transition-colors"
+          title="Upload photo"
+        >
+          <Upload size={18} />
+        </button>
+        
+        <button
+          onClick={startCamera}
+          className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 p-2 rounded-lg transition-colors"
+          title="Take photo"
+        >
+          <Camera size={18} />
+        </button>
+        
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
       </div>
     );
   }

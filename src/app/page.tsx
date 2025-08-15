@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ImageUpload } from '@/components/ImageUpload';
 import { PresetCarousel } from '@/components/PresetCarousel';
 import { ImagePreview } from '@/components/ImagePreview';
-import { ActionButtons } from '@/components/ActionButtons';
 import { ProcessedImage, Preset } from '@/types';
 import presets from '@/data/presets.json';
 
@@ -13,6 +12,31 @@ export default function Home() {
   const [selectedPreset, setSelectedPreset] = useState<Preset | null>(null);
   const [showBefore, setShowBefore] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Load sample image on mount
+  useEffect(() => {
+    const loadSampleImage = async () => {
+      try {
+        const response = await fetch('/sample.jpg');
+        const blob = await response.blob();
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          setImage({
+            original: result,
+            processed: result
+          });
+        };
+        
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.log('Sample image not loaded:', error);
+      }
+    };
+
+    loadSampleImage();
+  }, []);
 
   const handleImageUpload = (imageData: string) => {
     setImage({
@@ -141,29 +165,6 @@ export default function Home() {
     link.click();
   };
 
-  const handleShare = async () => {
-    if (!image?.canvas) return;
-    
-    if (navigator.share) {
-      try {
-        image.canvas.toBlob(async (blob) => {
-          if (blob) {
-            const file = new File([blob], 'vintage-photo.jpg', { type: 'image/jpeg' });
-            await navigator.share({
-              files: [file],
-              title: 'Vintage Photo',
-              text: 'Check out this vintage photo!'
-            });
-          }
-        }, 'image/jpeg', 0.9);
-      } catch (error) {
-        console.log('Share failed:', error);
-        handleDownload();
-      }
-    } else {
-      handleDownload();
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 dark:from-gray-900 dark:to-gray-800">
@@ -179,12 +180,18 @@ export default function Home() {
 
         <div className="max-w-2xl mx-auto">
           {!image ? (
-            <ImageUpload onImageUpload={handleImageUpload} />
+            <div className="text-center mb-8">
+              <div className="animate-pulse text-gray-500 dark:text-gray-400 mb-4">
+                Loading sample image...
+              </div>
+            </div>
           ) : (
             <>
               <ImagePreview 
                 image={image}
                 showBefore={false}
+                onDownload={handleDownload}
+                hasProcessedImage={!!selectedPreset}
               />
               
               <PresetCarousel 
@@ -193,11 +200,9 @@ export default function Home() {
                 onPresetSelect={handlePresetSelect}
               />
               
-              <ActionButtons 
-                onDownload={handleDownload}
-                onShare={handleShare}
-                hasProcessedImage={!!selectedPreset}
-              />
+              <div className="mt-6 text-center">
+                <ImageUpload onImageUpload={handleImageUpload} compact={true} />
+              </div>
             </>
           )}
         </div>

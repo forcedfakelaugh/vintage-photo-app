@@ -2,13 +2,21 @@
 
 import { ProcessedImage } from '@/types';
 import Image from 'next/image';
+import { ActionButtons } from './ActionButtons';
 
 interface ImagePreviewProps {
   image: ProcessedImage;
   showBefore?: boolean;
+  onDownload?: () => void;
+  hasProcessedImage?: boolean;
 }
 
-export function ImagePreview({ image, showBefore = false }: ImagePreviewProps) {
+export function ImagePreview({ 
+  image, 
+  showBefore = false, 
+  onDownload,
+  hasProcessedImage = false 
+}: ImagePreviewProps) {
   const displayImage = showBefore ? image.original : image.processed;
 
   return (
@@ -21,6 +29,12 @@ export function ImagePreview({ image, showBefore = false }: ImagePreviewProps) {
           className="object-contain"
           sizes="(max-width: 768px) 100vw, 512px"
         />
+        {onDownload && (
+          <ActionButtons 
+            onDownload={onDownload}
+            hasProcessedImage={hasProcessedImage}
+          />
+        )}
       </div>
       
       {showBefore && (
