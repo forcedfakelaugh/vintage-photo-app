@@ -1,103 +1,169 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useRef } from 'react';
+import { ImageUpload } from '@/components/ImageUpload';
+import { PresetCarousel } from '@/components/PresetCarousel';
+import { ImagePreview } from '@/components/ImagePreview';
+import { ActionButtons } from '@/components/ActionButtons';
+import { ProcessedImage, Preset } from '@/types';
+import presets from '@/data/presets.json';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [image, setImage] = useState<ProcessedImage | null>(null);
+  const [selectedPreset, setSelectedPreset] = useState<Preset | null>(null);
+  const [showBefore, setShowBefore] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleImageUpload = (imageData: string) => {
+    setImage({
+      original: imageData,
+      processed: imageData
+    });
+    setSelectedPreset(null);
+  };
+
+  const handlePresetSelect = (preset: Preset) => {
+    setSelectedPreset(preset);
+    if (image) {
+      applyPreset(preset);
+    }
+  };
+
+  const applyPreset = async (preset: Preset) => {
+    if (!image || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const img = new Image();
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      
+      ctx.drawImage(img, 0, 0);
+      
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      
+      for (let i = 0; i < data.length; i += 4) {
+        let r = data[i];
+        let g = data[i + 1];
+        let b = data[i + 2];
+        
+        r *= preset.filters.brightness;
+        g *= preset.filters.brightness;
+        b *= preset.filters.brightness;
+        
+        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+        r = r * preset.filters.saturation + gray * (1 - preset.filters.saturation);
+        g = g * preset.filters.saturation + gray * (1 - preset.filters.saturation);
+        b = b * preset.filters.saturation + gray * (1 - preset.filters.saturation);
+        
+        const sepiaR = (r * 0.393) + (g * 0.769) + (b * 0.189);
+        const sepiaG = (r * 0.349) + (g * 0.686) + (b * 0.168);
+        const sepiaB = (r * 0.272) + (g * 0.534) + (b * 0.131);
+        
+        r = r * (1 - preset.filters.sepia) + sepiaR * preset.filters.sepia;
+        g = g * (1 - preset.filters.sepia) + sepiaG * preset.filters.sepia;
+        b = b * (1 - preset.filters.sepia) + sepiaB * preset.filters.sepia;
+        
+        data[i] = Math.min(255, Math.max(0, r));
+        data[i + 1] = Math.min(255, Math.max(0, g));
+        data[i + 2] = Math.min(255, Math.max(0, b));
+      }
+      
+      ctx.putImageData(imageData, 0, 0);
+      
+      const processedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      setImage(prev => prev ? {
+        ...prev,
+        processed: processedDataUrl,
+        canvas
+      } : null);
+    };
+    
+    img.src = image.original;
+  };
+
+  const handleDownload = () => {
+    if (!image?.canvas) return;
+    
+    const link = document.createElement('a');
+    link.download = 'vintage-photo.jpg';
+    link.href = image.canvas.toDataURL('image/jpeg', 0.9);
+    link.click();
+  };
+
+  const handleShare = async () => {
+    if (!image?.canvas) return;
+    
+    if (navigator.share) {
+      try {
+        image.canvas.toBlob(async (blob) => {
+          if (blob) {
+            const file = new File([blob], 'vintage-photo.jpg', { type: 'image/jpeg' });
+            await navigator.share({
+              files: [file],
+              title: 'Vintage Photo',
+              text: 'Check out this vintage photo!'
+            });
+          }
+        }, 'image/jpeg', 0.9);
+      } catch (error) {
+        console.log('Share failed:', error);
+        handleDownload();
+      }
+    } else {
+      handleDownload();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-8">
+        <header className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2">
+            Vintage Photo
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
+            Transform your photos with vintage filters
+          </p>
+        </header>
+
+        <div className="max-w-2xl mx-auto">
+          {!image ? (
+            <ImageUpload onImageUpload={handleImageUpload} />
+          ) : (
+            <>
+              <ImagePreview 
+                image={image}
+                showBefore={showBefore}
+              />
+              
+              <PresetCarousel 
+                presets={presets as Preset[]}
+                selectedPreset={selectedPreset}
+                onPresetSelect={handlePresetSelect}
+              />
+              
+              <ActionButtons 
+                onToggleBeforeAfter={() => setShowBefore(!showBefore)}
+                onDownload={handleDownload}
+                onShare={handleShare}
+                showBefore={showBefore}
+                hasProcessedImage={!!image.canvas}
+              />
+            </>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        
+        <canvas 
+          ref={canvasRef} 
+          className="hidden" 
+          aria-hidden="true"
+        />
+      </div>
     </div>
   );
 }
