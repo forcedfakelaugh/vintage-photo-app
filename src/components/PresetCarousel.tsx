@@ -15,13 +15,13 @@ export function PresetCarousel({ presets, selectedPreset, onPresetSelect }: Pres
         Choose a Filter
       </h3>
       
-      <div className="flex gap-2 overflow-x-auto pb-4 px-2 pt-1">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 px-2">
         {presets.map((preset) => (
           <button
             key={preset.id}
             onClick={() => onPresetSelect(preset)}
             className={`
-              flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium transition-all
+              px-2 py-1 rounded-full text-xs font-medium transition-all text-center
               ${selectedPreset?.id === preset.id 
                 ? 'bg-amber-500 text-white shadow-md ring-2 ring-amber-300' 
                 : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200'
