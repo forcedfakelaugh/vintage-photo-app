@@ -23,10 +23,28 @@ export default function Home() {
   };
 
   const handlePresetSelect = (preset: Preset) => {
-    setSelectedPreset(preset);
-    if (image) {
-      applyPreset(preset);
+    if (selectedPreset?.id === preset.id) {
+      // Deselect and reset to original
+      setSelectedPreset(null);
+      if (image) {
+        resetToOriginal();
+      }
+    } else {
+      // Select new preset
+      setSelectedPreset(preset);
+      if (image) {
+        applyPreset(preset);
+      }
     }
+  };
+
+  const resetToOriginal = () => {
+    if (!image) return;
+    setImage(prev => prev ? {
+      ...prev,
+      processed: prev.original,
+      canvas: undefined
+    } : null);
   };
 
   const applyPreset = async (preset: Preset) => {
@@ -67,6 +85,14 @@ export default function Home() {
         r = r * (1 - preset.filters.sepia) + sepiaR * preset.filters.sepia;
         g = g * (1 - preset.filters.sepia) + sepiaG * preset.filters.sepia;
         b = b * (1 - preset.filters.sepia) + sepiaB * preset.filters.sepia;
+        
+        if (preset.filters.grain > 0) {
+          const grainAmount = preset.filters.grain * 80;
+          const grain = (Math.random() - 0.5) * grainAmount;
+          r += grain;
+          g += grain;
+          b += grain;
+        }
         
         data[i] = Math.min(255, Math.max(0, r));
         data[i + 1] = Math.min(255, Math.max(0, g));
@@ -138,7 +164,7 @@ export default function Home() {
             <>
               <ImagePreview 
                 image={image}
-                showBefore={showBefore}
+                showBefore={false}
               />
               
               <PresetCarousel 
@@ -148,11 +174,9 @@ export default function Home() {
               />
               
               <ActionButtons 
-                onToggleBeforeAfter={() => setShowBefore(!showBefore)}
                 onDownload={handleDownload}
                 onShare={handleShare}
-                showBefore={showBefore}
-                hasProcessedImage={!!image.canvas}
+                hasProcessedImage={!!selectedPreset}
               />
             </>
           )}

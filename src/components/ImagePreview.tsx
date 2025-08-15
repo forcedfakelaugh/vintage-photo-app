@@ -5,10 +5,10 @@ import Image from 'next/image';
 
 interface ImagePreviewProps {
   image: ProcessedImage;
-  showBefore: boolean;
+  showBefore?: boolean;
 }
 
-export function ImagePreview({ image, showBefore }: ImagePreviewProps) {
+export function ImagePreview({ image, showBefore = false }: ImagePreviewProps) {
   const displayImage = showBefore ? image.original : image.processed;
 
   return (

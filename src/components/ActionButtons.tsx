@@ -1,32 +1,20 @@
 'use client';
 
-import { Eye, Download, Share } from 'lucide-react';
+import { Download, Share } from 'lucide-react';
 
 interface ActionButtonsProps {
-  onToggleBeforeAfter: () => void;
   onDownload: () => void;
   onShare: () => void;
-  showBefore: boolean;
   hasProcessedImage: boolean;
 }
 
 export function ActionButtons({ 
-  onToggleBeforeAfter, 
   onDownload, 
   onShare, 
-  showBefore,
   hasProcessedImage 
 }: ActionButtonsProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-3 justify-center">
-      <button
-        onClick={onToggleBeforeAfter}
-        className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-full font-medium transition-colors flex items-center justify-center gap-2 min-h-[44px] w-full sm:w-auto"
-      >
-        <Eye size={20} />
-        {showBefore ? 'Show After' : 'Show Before'}
-      </button>
-      
       <button
         onClick={onDownload}
         disabled={!hasProcessedImage}
